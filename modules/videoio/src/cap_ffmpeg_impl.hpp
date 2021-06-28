@@ -2172,6 +2172,15 @@ int cvWriteFrame_FFMPEG( CvVideoWriter_FFMPEG* writer,
 }
 
 
+int cvGetRTPTimeStamp_FFMPEG(CvCapture_FFMPEG* capture)
+{
+  printf("cvGetRTPTimeStamp_FFMPEG %llu\n", capture->packet.rtp_ntp_time_stamp);
+  return capture->packet.rtp_ntp_time_stamp;
+  return 0;
+  // return capture->getRTPTimeStamp();
+}
+
+
 
 /*
  * For CUDA encoder

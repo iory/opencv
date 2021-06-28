@@ -39,6 +39,8 @@
 //
 //M*/
 
+#include <cstdint>
+
 #include "precomp.hpp"
 #include "cap_intelperc.hpp"
 #include "cap_dshow.hpp"
@@ -67,6 +69,11 @@ template<> void DefaultDeleter<CvVideoWriter>::operator ()(CvVideoWriter* obj) c
 }
 
 /************************* Reading AVIs & Camera data **************************/
+
+static inline uint64_t icvGetRTPTimeStamp(const CvCapture* capture)
+{
+  return capture ? capture->getRTPTimeStamp() : 0;
+}
 
 static inline double icvGetCaptureProperty( const CvCapture* capture, int id )
 {
@@ -630,6 +637,41 @@ bool VideoCapture::grab()
     if (!icap.empty())
         return icap->grabFrame();
     return cvGrabFrame(cap) != 0;
+}
+
+/**@brief Gets the upper bytes of the RTP time stamp in NTP format (seconds).
+ */
+int64 VideoCapture::getRTPTimeStampSeconds() const
+{
+  // int64 seconds = 0;
+  uint64_t timestamp = 0;
+  //Get the time stamp from the capture object
+  if (!icap.empty())
+    timestamp = icap->getRTPTimeStamp();
+  else
+    timestamp = icvGetRTPTimeStamp(cap);
+  //Take the top 32 bytes of the time stamp
+  // seconds = (int64)((timestamp & 0xFFFFFFFF00000000) / 0x100000000);
+  // seconds = (int64)((timestamp & 0xFFFFFFFF00000000) / 0x100000000);
+  printf("%d\n", static_cast<uint32_t>(timestamp >> 32));
+  int64 seconds = static_cast<int64>(static_cast<uint32_t>(timestamp >> 32));
+  return seconds;
+}
+
+/**@brief Gets the lower bytes of the RTP time stamp in NTP format (seconds).
+ */
+int64 VideoCapture::getRTPTimeStampFraction() const
+{
+  int64 fraction = 0;
+  uint64_t timestamp = 0;
+  //Get the time stamp from the capture object
+  if (!icap.empty())
+    timestamp = icap->getRTPTimeStamp();
+  else
+    timestamp = icvGetRTPTimeStamp(cap);
+  //Take the bottom 32 bytes of the time stamp
+  fraction = (int64)((timestamp & 0xFFFFFFFF));
+  return fraction;
 }
 
 bool VideoCapture::retrieve(OutputArray image, int channel)

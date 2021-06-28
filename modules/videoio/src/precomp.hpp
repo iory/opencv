@@ -87,6 +87,7 @@ struct CvCapture
 {
     virtual ~CvCapture() {}
     virtual double getProperty(int) const { return 0; }
+    virtual uint64_t getRTPTimeStamp() const { return 0; }
     virtual bool setProperty(int, double) { return 0; }
     virtual bool grabFrame() { return true; }
     virtual IplImage* retrieveFrame(int) { return 0; }
@@ -171,6 +172,7 @@ namespace cv
     public:
         virtual ~IVideoCapture() {}
         virtual double getProperty(int) const { return 0; }
+        virtual double getRTPTimeStamp() const { return 0; }
         virtual bool setProperty(int, double) { return false; }
         virtual bool grabFrame() = 0;
         virtual bool retrieveFrame(int, OutputArray) = 0;

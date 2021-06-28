@@ -596,6 +596,13 @@ Here is how the class can be used:
 class CV_EXPORTS_W VideoCapture
 {
 public:
+    /** @brief Gets the upper bytes of the RTP time stamp in NTP format (seconds).
+     */
+    CV_WRAP virtual int64 getRTPTimeStampSeconds() const;
+
+    /** @brief Gets the lower bytes of the RTP time stamp in NTP format (fraction of seconds).
+     */
+    CV_WRAP virtual int64 getRTPTimeStampFraction() const;
     /** @brief Default constructor
     @note In @ref videoio_c "C API", when you finished working with video, release CvCapture structure with
     cvReleaseCapture(), or use Ptr\<CvCapture\> that calls cvReleaseCapture() automatically in the

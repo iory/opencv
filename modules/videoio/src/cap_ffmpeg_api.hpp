@@ -68,6 +68,7 @@ typedef void* (*CvCreateVideoWriter_Plugin)( const char* filename, int fourcc,
 typedef int (*CvWriteFrame_Plugin)( void* writer_handle, const unsigned char* data, int step,
                                     int width, int height, int cn, int origin);
 typedef void (*CvReleaseVideoWriter_Plugin)( void** writer );
+typedef int (*CvGetRTPTimeStamp_Plugin)( void* capture_handle );
 
 /*
  * For CUDA encoder

@@ -41,6 +41,7 @@
 
 #include "precomp.hpp"
 
+#include <cstdint>
 #include <string>
 
 #if defined HAVE_FFMPEG && !defined WIN32
@@ -58,6 +59,7 @@ static CvGetCaptureProperty_Plugin icvGetCaptureProperty_FFMPEG_p = 0;
 static CvCreateVideoWriter_Plugin icvCreateVideoWriter_FFMPEG_p = 0;
 static CvReleaseVideoWriter_Plugin icvReleaseVideoWriter_FFMPEG_p = 0;
 static CvWriteFrame_Plugin icvWriteFrame_FFMPEG_p = 0;
+static CvGetRTPTimeStamp_Plugin icvGetRTPTimeStamp_FFMPEG_p = 0;
 
 static cv::Mutex _icvInitFFMPEG_mutex;
 
@@ -159,6 +161,8 @@ private:
                 (CvReleaseVideoWriter_Plugin)GetProcAddress(icvFFOpenCV, "cvReleaseVideoWriter_FFMPEG");
             icvWriteFrame_FFMPEG_p =
                 (CvWriteFrame_Plugin)GetProcAddress(icvFFOpenCV, "cvWriteFrame_FFMPEG");
+            icvGetRTPTimeStamp_FFMPEG_p =
+              (CvGetRTPTimeStamp_Plugin)GetProcAddress(icvFFOpenCV, "cvGetRTPTimeStamp_FFMPEG");
 
 #if 0
             if( icvCreateFileCapture_FFMPEG_p != 0 &&
@@ -169,7 +173,8 @@ private:
                 icvGetCaptureProperty_FFMPEG_p != 0 &&
                 icvCreateVideoWriter_FFMPEG_p != 0 &&
                 icvReleaseVideoWriter_FFMPEG_p != 0 &&
-                icvWriteFrame_FFMPEG_p != 0 )
+                icvWriteFrame_FFMPEG_p != 0 &&
+                icvGetRTPTimeStamp_FFMPEG_p !=0)
             {
                 printf("Successfully initialized ffmpeg plugin!\n");
             }
@@ -189,6 +194,7 @@ private:
         icvCreateVideoWriter_FFMPEG_p = (CvCreateVideoWriter_Plugin)cvCreateVideoWriter_FFMPEG;
         icvReleaseVideoWriter_FFMPEG_p = (CvReleaseVideoWriter_Plugin)cvReleaseVideoWriter_FFMPEG;
         icvWriteFrame_FFMPEG_p = (CvWriteFrame_Plugin)cvWriteFrame_FFMPEG;
+        icvGetRTPTimeStamp_FFMPEG_p = (CvGetRTPTimeStamp_Plugin)cvGetRTPTimeStamp_FFMPEG;
     #endif
     }
 };
@@ -201,6 +207,11 @@ public:
     CvCapture_FFMPEG_proxy() { ffmpegCapture = 0; }
     virtual ~CvCapture_FFMPEG_proxy() { close(); }
 
+    virtual uint64_t getRTPTimeStamp() const
+    {
+	  printf("ffmpegCapture = %d\n", ffmpegCapture);
+      return ffmpegCapture ? icvGetRTPTimeStamp_FFMPEG_p(ffmpegCapture) : 0;
+    }
     virtual double getProperty(int propId) const
     {
         return ffmpegCapture ? icvGetCaptureProperty_FFMPEG_p(ffmpegCapture, propId) : 0;
